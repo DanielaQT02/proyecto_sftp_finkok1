@@ -16,4 +16,4 @@ class ErrorCreate(ErrorBase):
 class ErrorRead(ErrorBase):
     id: int
     buffer_id: int
-    occurred_at: datetime
+    created_at: datetime

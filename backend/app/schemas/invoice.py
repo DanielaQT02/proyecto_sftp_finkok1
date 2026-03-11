@@ -21,4 +21,6 @@ class InvoiceCreate(InvoiceBase):
 class InvoiceRead(InvoiceBase):
     id: int
     buffer_id: int
+    business_id: int
     created_at: datetime
+    updated_at: datetime
