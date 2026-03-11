@@ -1,11 +1,24 @@
-from typing import List
+from datetime import datetime
+from decimal import Decimal
 
-from pydantic import BaseModel, Field
+from .base import SchemaBase
 
 
-class BatchIngestRequest(BaseModel):
-    xml_names: List[str] = Field(
-        ...,
-        min_length=1,
-        description="Lista de nombres de XML dentro del ZIP",
-    )
+class InvoiceBase(SchemaBase):
+    response_code: str | None = None
+    message: str | None = None
+    taxpayer_id: str | None = None
+    rtaxpayer_id: str | None = None
+    total: Decimal | None = None
+    xml_timbrado: str | None = None
+    uuid: str | None = None
+
+
+class InvoiceCreate(InvoiceBase):
+    pass
+
+
+class InvoiceRead(InvoiceBase):
+    id: int
+    buffer_id: int
+    created_at: datetime
