@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.account import Account
 from app.models.user import User
@@ -15,24 +18,31 @@ class AccountRepository(BaseRepository[Account]):
         res = await self.session.execute(stmt)
         return res.scalars().first()
 
-    async def search_by_email(
+    async def search_by_name(
         self,
         *,
-        email: str,
+        name: str,
         limit: int = 50,
         offset: int = 0,
     ) -> list[Account]:
-
-        email = email.strip()
-        if not email:
+        name = name.strip()
+        if not name:
             return []
-
         stmt = (
             select(Account)
             .join(User)
-            .where(User.email.ilike(f"%{email}%"))
+            .where(User.name.ilike(f"%{name}%"))
             .limit(limit)
             .offset(offset)
         )
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
+
+    async def get_with_businesses(self, account_id: int) -> Account | None:
+        stmt = (
+            select(Account)
+            .where(Account.id == account_id)
+            .options(selectinload(Account.businesses))
+        )
+        res = await self.session.execute(stmt)
+        return res.scalars().first()

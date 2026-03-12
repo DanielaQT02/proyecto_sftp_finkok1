@@ -18,3 +18,8 @@ class BusinessRepository(BaseRepository[Business]):
         )
         res = await self.session.execute(stmt)
         return res.scalars().all()
+
+    async def get_by_taxpayer_id(self, taxpayer_id: str) -> Business | None:
+        stmt = select(Business).where(Business.taxpayer_id == taxpayer_id)
+        res = await self.session.execute(stmt)
+        return res.scalars().first()

@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.models.buffer import Buffer
 from app.repositories.base import BaseRepository
@@ -35,5 +36,16 @@ class BufferRepository(BaseRepository[Buffer]):
             for name in xml_names
         ]
         self.session.add_all(objs)
-        await self.session.commit()
         return objs
+
+    async def get_with_details(self, buffer_id: int) -> Buffer | None:
+        stmt = (
+            select(Buffer)
+            .where(Buffer.id == buffer_id)
+            .options(
+                selectinload(Buffer.invoices),
+                selectinload(Buffer.errors)
+            )
+        )
+        res = await self.session.execute(stmt)
+        return res.scalars().first()

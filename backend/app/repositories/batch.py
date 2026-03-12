@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.batch import StampingBatch
 from app.repositories.base import BaseRepository
@@ -30,3 +31,12 @@ class StampingBatchRepository(BaseRepository[StampingBatch]):
         )
         res = await self.session.execute(stmt)
         return res.scalars().all()
+
+    async def get_with_buffers(self, batch_id: int) -> StampingBatch | None:
+        stmt = (
+            select(StampingBatch)
+            .where(StampingBatch.id == batch_id)
+            .options(selectinload(StampingBatch.buffers))
+        )
+        res = await self.session.execute(stmt)
+        return res.scalars().first()
