@@ -1,3 +1,7 @@
+class BufferCreate(SchemaBase):
+    batch_id: int
+    xml_name: str
+    status: str = "pending"
 from datetime import datetime
 
 from .base import SchemaBase

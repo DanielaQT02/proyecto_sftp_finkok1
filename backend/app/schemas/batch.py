@@ -1,3 +1,9 @@
+class BatchUpdate(SchemaBase):
+    business_id: int | None = None
+    zip_name: str | None = None
+    total_xml: int | None = None
+    status: str | None = None
+    task_id: str | None = None
 from datetime import datetime
 
 from pydantic import Field
