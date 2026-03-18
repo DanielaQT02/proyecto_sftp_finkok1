@@ -9,4 +9,4 @@ Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def read_root():
-    return {"message": "API funcionando"}
+    return {"BIENVENIDO"}
