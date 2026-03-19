@@ -1,3 +1,8 @@
+
+from .base import InputSchema, SchemaBase
+from datetime import datetime
+from pydantic import Field
+
 class BusinessUpdate(SchemaBase):
     taxpayer_id: str | None = None
     business_name: str | None = None
@@ -11,11 +16,6 @@ class BusinessStatistics(SchemaBase):
     stamped_success: int
     stamped_error: int
     success_rate: float
-from datetime import datetime
-
-from pydantic import Field
-
-from .base import InputSchema, SchemaBase
 
 
 class BusinessBase(InputSchema):
