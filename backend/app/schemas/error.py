@@ -15,5 +15,21 @@ class ErrorCreate(ErrorBase):
 
 class ErrorRead(ErrorBase):
     id: int
-    buffer_id: int
-    occurred_at: datetime
+    buffer_id: int | None = None
+    created_at: datetime
+
+
+class ErrorDetail(ErrorRead):
+    business_name: str | None = None
+    taxpayer_id: str | None = None
+    total_amount: float | None = None
+
+
+class ErrorSummary(SchemaBase):
+    total_errors: int
+    errors_by_code: dict[str, int] = {}
+    errors_by_message: dict[str, int] = {}
+    days: int
+
+
+ErrorStamping = ErrorRead

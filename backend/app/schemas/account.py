@@ -11,3 +11,7 @@ class AccountCreate(AccountBase):
 
 class AccountRead(AccountBase):
     id: int
+
+class AccountUpdate(SchemaBase):
+    user_id: int | None = None
+    account_name: str | None = None
