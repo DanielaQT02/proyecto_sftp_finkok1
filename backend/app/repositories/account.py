@@ -18,20 +18,20 @@ class AccountRepository(BaseRepository[Account]):
         res = await self.session.execute(stmt)
         return res.scalars().first()
 
-    async def search_by_name(
+    async def search_by_user_email(
         self,
         *,
-        name: str,
+        email: str,
         limit: int = 50,
         offset: int = 0,
     ) -> list[Account]:
-        name = name.strip()
-        if not name:
+        email = email.strip()
+        if not email:
             return []
         stmt = (
             select(Account)
             .join(User)
-            .where(User.name.ilike(f"%{name}%"))
+            .where(User.email.ilike(f"%{email}%"))
             .limit(limit)
             .offset(offset)
         )

@@ -5,7 +5,7 @@ from app.core.database import get_db
 from app.models.user import User as UserModel
 from app.schemas.business import BusinessCreate, BusinessUpdate, BusinessRead, BusinessStatistics
 from app.services.business import BusinessService
-from app.api.routes.auth import get_current_user
+from app.core.security import get_current_user
 
 router = APIRouter(prefix="/businesses", tags=["Businesses"])
 

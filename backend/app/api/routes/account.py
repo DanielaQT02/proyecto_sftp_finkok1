@@ -6,7 +6,7 @@ from app.models.user import User as UserModel
 from app.schemas.account import AccountCreate, AccountUpdate, AccountRead
 from app.schemas.business import BusinessRead
 from app.services.account import AccountService
-from app.api.routes.auth import get_current_user
+from app.core.security import get_current_user
 
 router = APIRouter(prefix="/accounts", tags=["Accounts"])
 
@@ -26,15 +26,11 @@ async def create_account(
 
 @router.get("/", response_model=list[AccountRead])
 async def list_accounts(
-    skip: int = Query(default=0, ge=0),
-    limit: int = Query(default=100, le=1000),
     current_user: UserModel = Depends(get_current_user),
     service: AccountService = Depends(get_account_service),
 ):
     return await service.list_accounts(
         current_user=current_user,
-        skip=skip,
-        limit=limit,
     )
 
 
@@ -65,4 +61,3 @@ async def delete_account(
 ):
     await service.delete_account(account_id, current_user)
     return None
-

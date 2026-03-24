@@ -1,8 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import Field
-
 from .base import SchemaBase
 
 
@@ -17,7 +15,7 @@ class InvoiceBase(SchemaBase):
 
 
 class InvoiceCreate(InvoiceBase):
-    pass
+    business_id: int
 
 
 class InvoiceUpdate(InvoiceBase):

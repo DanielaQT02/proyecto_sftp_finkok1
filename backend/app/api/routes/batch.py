@@ -5,7 +5,7 @@ from app.core.database import get_db
 from app.models.user import User as UserModel
 from app.schemas.batch import BatchCreate, BatchUpdate, BatchRead
 from app.services.batch import StampingBatchService
-from app.api.routes.auth import get_current_user
+from app.core.security import get_current_user
 
 router = APIRouter(prefix="/batches", tags=["Batches"])
 

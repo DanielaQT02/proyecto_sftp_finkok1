@@ -1,14 +1,19 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from app.repositories.base import BaseRepository
-from app.models.user import User
+from app.models.user import User, Role, Permission
 
 class UserRepository(BaseRepository[User]):
     def __init__(self, session: AsyncSession):
         super().__init__(session=session, model=User)
 
     async def get_by_email(self, email: str) -> User | None:
-        stmt = select(User).where(User.email == email)
+        stmt = (
+            select(User)
+            .where(User.email == email)
+            .options(selectinload(User.roles).selectinload(Role.permissions))
+        )
         res = await self.session.execute(stmt)
         return res.scalars().first()
 

@@ -36,7 +36,7 @@ class BusinessService(BaseService):
             error_msg="RFC ya registrado"
         )
 
-        return await self.business_repo.create(business_data.dict())
+        return await self.business_repo.create(business_data.model_dump())
 
     async def list_businesses(
         self,
@@ -58,7 +58,9 @@ class BusinessService(BaseService):
                 )
                 return await self.business_repo.list_by_account(account_id, limit=limit, offset=skip)
 
-            account_ids = [acc.id for acc in current_user.accounts]
+            # Usar repositorio en lugar de lazy loading
+            user_accounts = await self.account_repo.get_by_user_id(current_user.id)
+            account_ids = [acc.id for acc in user_accounts] if user_accounts else []
             if not account_ids:
                 return []
             all_businesses = []
@@ -76,9 +78,11 @@ class BusinessService(BaseService):
             return business
 
         if current_user.role == "cliente":
+            # Obtener account sin lazy loading
+            account = await self._get_or_404(self.account_repo.get, business.account_id)
             self._allow_superuser_admin_or_owner(
                 current_user,
-                business.account.user_id,
+                account.user_id,
                 "No autorizado para ver esta empresa"
             )
             return business
@@ -91,9 +95,11 @@ class BusinessService(BaseService):
         if current_user.role in ["superuser", "admin"]:
             pass
         elif current_user.role == "cliente":
+            # Obtener account sin lazy loading
+            account = await self._get_or_404(self.account_repo.get, business.account_id)
             self._allow_superuser_admin_or_owner(
                 current_user,
-                business.account.user_id,
+                account.user_id,
                 "No autorizado para actualizar esta empresa"
             )
         else:
@@ -104,7 +110,7 @@ class BusinessService(BaseService):
             if existing:
                 self._bad_request("RFC ya registrado por otra empresa")
 
-        return await self.business_repo.update(business_id, business_data.dict(exclude_unset=True))
+        return await self.business_repo.update(business_id, business_data.model_dump(exclude_unset=True))
 
     async def delete_business(self, business_id: int, current_user: UserModel) -> None:
         business = await self._get_or_404(self.business_repo.get, business_id)
@@ -112,9 +118,11 @@ class BusinessService(BaseService):
         if current_user.role in ["superuser", "admin"]:
             pass
         elif current_user.role == "cliente":
+            # Obtener account sin lazy loading
+            account = await self._get_or_404(self.account_repo.get, business.account_id)
             self._allow_superuser_admin_or_owner(
                 current_user,
-                business.account.user_id,
+                account.user_id,
                 "No autorizado para eliminar esta empresa"
             )
         else:
@@ -134,9 +142,11 @@ class BusinessService(BaseService):
         if current_user.role in ["superuser", "admin", "soporte", "cobranza"]:
             pass
         elif current_user.role == "cliente":
+            # Obtener account sin lazy loading
+            account = await self._get_or_404(self.account_repo.get, business.account_id)
             self._allow_superuser_admin_or_owner(
                 current_user,
-                business.account.user_id,
+                account.user_id,
                 "No autorizado para ver estadísticas de esta empresa"
             )
         else:

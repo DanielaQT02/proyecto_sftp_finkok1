@@ -5,6 +5,7 @@ from fastapi import HTTPException
 
 from app.models.invoice import Invoice
 from app.models.user import User as UserModel
+from app.repositories.account import AccountRepository
 from app.repositories.business import BusinessRepository
 from app.repositories.invoice import InvoiceRepository
 from app.schemas.invoice import InvoiceCreate, InvoiceUpdate, InvoiceSummary
@@ -16,6 +17,7 @@ class InvoiceService(BaseService):
         super().__init__(db)
         self.invoice_repo = InvoiceRepository(db)
         self.business_repo = BusinessRepository(db)
+        self.account_repo = AccountRepository(db)
 
     async def create_invoice(self, invoice_data: InvoiceCreate, current_user: UserModel) -> Invoice:
         business = await self._get_or_404(self.business_repo.get, invoice_data.business_id)
@@ -23,16 +25,17 @@ class InvoiceService(BaseService):
         if current_user.role in ["superuser", "admin"]:
             pass
         elif current_user.role == "cliente":
+            account = await self._get_or_404(self.account_repo.get, business.account_id)
             self._allow_superuser_admin_or_owner(
                 current_user,
-                business.account.user_id,
+                account.user_id,
                 "No autorizado para crear facturas en esta empresa"
             )
         else:
             self._forbidden("No tienes permiso para crear facturas")
 
         try:
-            return await self.invoice_repo.create(invoice_data.dict())
+            return await self.invoice_repo.create(invoice_data.model_dump())
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e)) from e
 
@@ -59,11 +62,16 @@ class InvoiceService(BaseService):
             )
 
         if current_user.role == "cliente":
-            user_business_ids = [
-                business.id
-                for account in current_user.accounts
-                for business in account.businesses
-            ]
+            user_accounts = await self.account_repo.get_by_user_id(current_user.id)
+            if not user_accounts:
+                return []
+            
+            # Obtener IDs de negocios de las cuentas
+            user_business_ids = []
+            for account in user_accounts:
+                businesses = await self.business_repo.list_by_account(account.id, limit=1000, offset=0)
+                user_business_ids.extend([b.id for b in businesses])
+            
             if not user_business_ids:
                 return []
 
@@ -94,9 +102,12 @@ class InvoiceService(BaseService):
             return invoice
 
         if current_user.role == "cliente":
+            # Obtener business y account sin lazy loading
+            business = await self._get_or_404(self.business_repo.get, invoice.business_id)
+            account = await self._get_or_404(self.account_repo.get, business.account_id)
             self._allow_superuser_admin_or_owner(
                 current_user,
-                invoice.business.account.user_id,
+                account.user_id,
                 "No autorizado para ver esta factura"
             )
             return invoice
@@ -112,7 +123,7 @@ class InvoiceService(BaseService):
             "No tienes permiso para actualizar facturas"
         )
 
-        return await self.invoice_repo.update(uuid, invoice_data.dict(exclude_unset=True))
+        return await self.invoice_repo.update(uuid, invoice_data.model_dump(exclude_unset=True))
 
     async def delete_invoice(self, uuid: str, current_user: UserModel) -> None:
         await self._get_or_404(self.invoice_repo.get_by_uuid, uuid)

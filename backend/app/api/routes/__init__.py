@@ -5,6 +5,7 @@ from app.api.routes.buffer import router as buffer_router
 from app.api.routes.business import router as business_router
 from app.api.routes.error import router as error_router
 from app.api.routes.invoice import router as invoice_router
+from app.api.routes.statistics import router as statistics_router
 from app.api.routes.user import router as user_router
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "business_router",
     "error_router",
     "invoice_router",
+    "statistics_router",
     "user_router",
 ]

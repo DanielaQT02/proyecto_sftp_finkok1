@@ -25,7 +25,7 @@ class BufferService(BaseService):
             elif current_user.role not in ["superuser", "admin"]:
                 self._forbidden("No tienes permiso para crear buffers")
 
-        return await self.repo.create(data.dict())
+        return await self.repo.create(data.model_dump())
 
     async def get_buffer(self, buffer_id: int, current_user: UserModel) -> Buffer:
         buffer = await self._get_or_404(self.repo.get, buffer_id)

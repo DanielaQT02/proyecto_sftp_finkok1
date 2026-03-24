@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status as http_status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.routes.auth import get_current_user
+from app.core.security import get_current_user
 from app.core.database import get_db
 from app.models.user import User as UserModel
 from app.schemas.buffer import BufferCreate, BufferRead

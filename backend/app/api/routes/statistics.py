@@ -5,7 +5,7 @@ from app.core.database import get_db
 from app.models.user import User as UserModel
 from app.schemas.statistics import StampingStatisticsCreate, StampingStatisticsRead
 from app.services.statistics import StampingStatisticsService
-from app.api.routes.auth import get_current_user
+from app.core.security import get_current_user
 
 router = APIRouter(prefix="/statistics", tags=["Statistics"])
 

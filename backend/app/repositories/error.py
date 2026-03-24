@@ -18,3 +18,24 @@ class ErrorStampingRepository(BaseRepository[ErrorStamping]):
         )
         res = await self.session.execute(stmt)
         return res.scalars().all()
+
+    async def list_by_invoice_uuid(self, invoice_uuid: str, limit: int = 50, offset: int = 0):
+        stmt = (
+            select(ErrorStamping)
+            .where(ErrorStamping.invoice_uuid == invoice_uuid)
+            .limit(limit)
+            .offset(offset)
+        )
+        res = await self.session.execute(stmt)
+        return res.scalars().all()
+
+    async def list_with_buffer(self, limit: int = 50, offset: int = 0):
+        from sqlalchemy.orm import selectinload
+        stmt = (
+            select(ErrorStamping)
+            .options(selectinload(ErrorStamping.buffer))
+            .limit(limit)
+            .offset(offset)
+        )
+        res = await self.session.execute(stmt)
+        return res.scalars().all()

@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, Query, status as http_status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.routes.auth import get_current_user
+from app.core.security import get_current_user
 from app.core.database import get_db
 from app.models.user import User as UserModel
 from app.schemas.invoice import InvoiceRead, InvoiceCreate, InvoiceUpdate, InvoiceSummary
@@ -49,7 +49,7 @@ async def list_invoices(
         taxpayer_id=taxpayer_id,
         from_date=from_date,
         to_date=to_date,
-        stamping_status=stamping_status,
+        invoice_status=stamping_status,
         skip=skip,
         limit=limit,
         current_user=current_user,

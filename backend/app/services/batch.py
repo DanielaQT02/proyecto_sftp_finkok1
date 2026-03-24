@@ -28,7 +28,7 @@ class StampingBatchService(BaseService):
         else:
             self._forbidden("No tienes permiso para crear lotes")
 
-        return await self.batch_repo.create(batch_data.dict())
+        return await self.batch_repo.create(batch_data.model_dump())
 
     async def list_batches(
         self,

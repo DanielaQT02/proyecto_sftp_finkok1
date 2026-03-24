@@ -36,9 +36,11 @@ class AccountService(BaseService):
     async def list_accounts(self, current_user: UserModel) -> List[AccountModel]:
         if current_user.role in ["superuser", "admin", "soporte"]:
             return await self.account_repo.list(limit=1000)
-        if current_user.role == "cliente":
-            return await self.account_repo.get_by_user_id(current_user.id)
-        self._forbidden("No tienes permiso para ver cuentas")
+        elif current_user.role == "cliente":
+            accounts = await self.account_repo.get_by_user_id(current_user.id)
+            return accounts if accounts else []
+        else:
+            self._forbidden("No tienes permiso para ver cuentas")
 
     async def get_account(self, account_id: int, current_user: UserModel):
         account = await self._get_or_404(self.account_repo.get, account_id)
@@ -55,6 +57,10 @@ class AccountService(BaseService):
 
     async def update_account(self, account_id: int, account_data: AccountUpdate, current_user: UserModel):
         account = await self._get_or_404(self.account_repo.get, account_id)
+
+        # Check if account is active
+        if not account.is_active:
+            self._not_found("Cuenta no encontrada")
 
         if current_user.role in ["superuser", "admin"]:
             pass

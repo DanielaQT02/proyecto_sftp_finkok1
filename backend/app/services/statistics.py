@@ -48,4 +48,4 @@ class StampingStatisticsService(BaseService):
             "No tienes permiso para crear estadísticas"
         )
 
-        return await self.statistics_repo.create(stat_data.dict())
+        return await self.statistics_repo.create(stat_data.model_dump())

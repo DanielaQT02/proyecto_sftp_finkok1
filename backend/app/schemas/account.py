@@ -6,7 +6,7 @@ class AccountBase(SchemaBase):
 
 
 class AccountCreate(AccountBase):
-    pass
+    account_name: str = "Principal"
 
 
 class AccountRead(AccountBase):
